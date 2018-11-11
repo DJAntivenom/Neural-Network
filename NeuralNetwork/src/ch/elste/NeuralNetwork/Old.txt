@@ -1,0 +1,66 @@
+				tempSimpleMatrix = new SimpleMatrix[i + 1];
+				// Calculate values for first layer
+				tempSimpleMatrix[0] = getSigmoid(getAppliedWeights(inputMatrix, weights[0], biases[0]));
+				// Calculate values for hidden layers
+				for (int j = 0; j < i; j++) {
+					tempSimpleMatrix[j + 1] = getSigmoid(
+							getAppliedWeights(tempSimpleMatrix[j], weights[j + 1], biases[j + 1]));
+				}
+				
+				
+				
+				
+							  tempErrorMatrix = new SimpleMatrix[7];
+			  
+			  // output error // Vector e2 SimpleMatrix e2 = new
+			  SimpleMatrix(toVerticalVectorArray(calcError(feedForward(inputs),
+			  expectedOutputs))); tempErrorMatrix[0] = new
+			  SimpleMatrix(toVerticalVectorArray(calcError(feedForward(inputs),
+			  expectedOutputs)));
+			  
+			  // the derivative of sigmoid, i.e. outputs*(1-outputs) // Matrix D_2
+			  SimpleMatrix D_2 = new
+			  SimpleMatrix(toVerticalVectorArray(getSigmoidDerivative(feedForward(inputs)))
+			  ); tempErrorMatrix[1] = new
+			  SimpleMatrix(toVerticalVectorArray(getSigmoidDerivative(feedForward(inputs)))
+			  );
+			  
+			  SimpleMatrix δ2 = D_2.elementMult(e2);
+			  
+			  // hidden_calculations // Vector o1 SimpleMatrix o1 =
+			  getSigmoid(getAppliedWeights(new SimpleMatrix(toVerticalVectorArray(inputs)),
+			  weights[0], biases[0])); tempErrorMatrix[2] = getSigmoid(
+			  getAppliedWeights(new SimpleMatrix(toVerticalVectorArray(inputs)),
+			  weights[0], biases[0]));
+			  
+			  // hidden error // Vector e1 SimpleMatrix e1 =
+			  weights[1].transpose().mult(δ2); tempErrorMatrix[3] =
+			  weights[1].transpose().mult(e2.elementMult(D_2));
+			  
+			  // gradient input_hidden // Matrix D_1 SimpleMatrix D_1 =
+			  getSigmoidDerivative(o1); tempErrorMatrix[4] = getSigmoidDerivative(o1);
+			  
+			  SimpleMatrix δ1 = D_1.elementMult(e1);
+			  
+			  // learningrate * error * gradient * hidden_calculations_transposed // error
+			  delta weights_to_output // Matrix DeltaW2 SimpleMatrix DeltaW2 =
+			  δ2.scale(-learningRate).mult(o1.transpose()); tempErrorMatrix[5] =
+			  getDelta(e2, D_2, o1.transpose());
+			  
+			  // delta hidden_weights // Matrix DeltaW1 SimpleMatrix DeltaW1 =
+			  δ1.scale(-learningRate).mult(new
+			  SimpleMatrix(toVerticalVectorArray(inputs)).transpose()); tempErrorMatrix[6]
+			  = getDelta(e1, D_1, new
+			  SimpleMatrix(toVerticalVectorArray(inputs)).transpose());
+			  
+			  // adding delta weigths to weights weights[1] =
+			  weights[1].plus(tempErrorMatrix[5]);
+			  
+			  // delta biases = learningrate * error * gradient // adding delta biases to
+			  biases // biasOutput = biasOutput.plus(getDelta(error_oh, gradient_oh));
+			  
+			  // adding delta hidden_weights to hidden weights weights[0] =
+			  weights[0].plus(tempErrorMatrix[6]);
+			  
+			  // adding delta hidden_biases to hidden_biases // biasHidden =
+			  biasHidden.plus(getDelta(error_oh, gradient_ih));
